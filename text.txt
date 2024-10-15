@@ -1,0 +1,35 @@
+const express=require("express") //Llamar a la dependencia express
+const app =express() //Instanciar un API
+const port=8080
+
+app.use(express.json())
+
+var datos={
+    datoBool:true,
+    datoInt:45,
+    datoFloat:3.15,
+    datoString:"Hola"
+}
+
+app.get("/",(req,res)=>{
+    res.send("Mi api")
+})
+
+app.get("/Datos",(req,res)=>{
+    res.send(datos)
+})
+
+app.put('/Datos2', (req, res) => {
+    const nuevosDatos={
+        datoBool:req.body.datoBool,
+        datoInt:parseInt(req.body.datoInt),
+        datoFloat:parseFloat(req.body.datoFloat),
+        datoString:req.body.datoString
+    }
+    datos=nuevosDatos
+    res.send(datos)
+  });
+
+app.listen(port,()=>{
+    console.log(`Comunicacion por el puerto ${port.toString()}`)
+})
