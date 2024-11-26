@@ -5,8 +5,10 @@ app.use(express.json())
 
 var valorActual=0
 var valorActual2=0
-var Val1=0
+var Val1=""
 var Val2=""
+var Val3=""
+var Val4=""
 
 const mqtt = require('mqtt');
 const brokerUrl = 'mqtts://ac7771abeee64d5dada1b1d3062f87f6.s1.eu.hivemq.cloud:8883'; // Este es un broker público para pruebas
@@ -19,14 +21,27 @@ const options = {
 };
 const client = mqtt.connect(brokerUrl, options);
 
+function obtenerDatos(msg){
+  let posiciones = []
+  let datos=[]
+  for(let i=0;i<msg.length;i++){
+    if(msg[i]==','){
+      posiciones.push(i)
+    }
+  }
+  for(let j=0;j<(posiciones.length-1);j++){
+    datos.push(msg.substring(posiciones[j]+1,posiciones[j+1]))
+  }
+  return datos
+}
 
 client.on('connect', async() => {
     console.log('Conectado a HiveMQ Broker');
     
     // Suscribirse a un tópico
-    client.subscribe('#', async(err) => {
+    client.subscribe('Mensaje', async(err) => {
       if (!err) {
-        console.log('Suscripción exitosa a Prueba');
+        console.log('Suscripción exitosa al Topico');
       }
       else{
         console.log("Fallo")
@@ -36,19 +51,16 @@ client.on('connect', async() => {
 
 client.on('message', async(topic, message) => {
     console.log(`Mensaje recibido de ${topic}: ${message.toString()}`);
-    //console.log(`${message.toString()}`)
-    //valorActual=0
-    if (topic=="DatoInt"){
-      Val1=parseInt(message.toString())
-    }
-    if (topic=="DatoBool"){
-      Val2=message.toString()
-    }
-    //valorActual=parseInt(message.toString());
+
+    let valores=obtenerDatos(message.toString());
+    Val1=valores[0];
+    Val2=valores[1];
+    Val3=valores[2];
+    Val4=valores[3];
 });
 
 app.get("/Datos",(req,res)=>{
-    res.send({Dato1:Val1,Dato2:Val2})
+    res.send({Dato1:Val1,Dato2:Val2,Dato3:Val3,Dato4:Val4})
 })
 
 
